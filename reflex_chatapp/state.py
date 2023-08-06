@@ -27,9 +27,12 @@ class State(rx.State):
 
         # stream the response back to the user
         answer = ""
-        self.chat_history.append((self.question, answer))
+        question = self.question
+        self.question = ""
+
+        self.chat_history.append((question, answer))
         for item in session:
             if hasattr(item.choices[0].delta, "content"):
                 answer += item.choices[0].delta.content
-                self.chat_history[-1] = (self.question, answer)
+                self.chat_history[-1] = (question, answer)
                 yield
