@@ -1,28 +1,36 @@
-from rxconfig import config
-
 import reflex as rx
+from reflex_chatapp import style
+from reflex_chatapp.state import State
 
-docs_url = "https://reflex.dev/docs/getting-started/introduction"
-filename = f"{config.app_name}/{config.app_name}.py"
+
+def qa(question: str, answer: str) -> rx.Component:
+    return rx.box(
+        rx.box(question, style=style.question_style),
+        rx.box(answer, style=style.answer_style),
+        margin_y="1rem",
+    )
 
 
-class State(rx.State):
-    """The app state."""
+def chat() -> rx.Component:
+    return rx.box(
+        # we must use rx foreach because state values aren't known at compile time
+        rx.foreach(State.chat_history, lambda messages: qa(messages[0], messages[1]))
+    )
 
-    pass
+
+def action_bar() -> rx.Component:
+    return rx.hstack(
+        rx.input(
+            placeholder="Type your question here...",
+            style=style.input_style,
+            on_blur=State.set_question,
+        ),
+        rx.button("Ask", style=style.button_style, on_click=State.answer),
+    )
 
 
 def index() -> rx.Component:
-    return rx.container(
-        rx.box(
-            "What is Reflex?",
-            text_align="center",
-        ),
-        rx.box(
-            "A way to build webb apps in pure Python.",
-            text_align="left",
-        ),
-    )
+    return rx.container(chat(), action_bar())
 
 
 # Add state and page to the app.
